@@ -1,0 +1,513 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                {{ title }}:
+                <div class="pull-right">
+                    <a href="{{ path('cto_jobs_list') }}" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;&nbsp;Назад</a>
+                </div>
+            </h3>
+            <br>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+
+            <div id="custom_form">
+                <form></form>
+                <div id="res"><div class="well well-sm text-center"><i class="fa fa-spinner fa-pulse"></i>&nbsp;&nbsp;Завантаження форми ...</div></div>
+            </div>
+            <br><br>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+
+            <form id="uploadImgs" name="uploadImgsName" method="POST" enctype="multipart/form-data">
+                <fieldset>
+                    <legend>Превью та загрузка картинок</legend>
+
+                    <div>
+                        <label for="fileselect">Виберіть картинки:</label>
+                        <input type="file" id="fileselect" name="fileselect[]" multiple="multiple" accept="image/*"/>
+                        <div id="filedrag">або перетягніть їх сюди</div>
+                    </div>
+
+                </fieldset>
+            </form>
+
+            <h4>Превью:</h4>
+            <div id="messages"></div>
+
+        </div>
+    </div>
+
+    <!-- Modal for create new client -->
+    <div class="modal fade" id="createClientModal" tabindex="-1" role="dialog" aria-labelledby="createClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Новий клієнт:</h4>
+                </div>
+                <div class="modal-body">
+                    {{ render(path('cto_client_new_from_modal', {'back': back })) }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Назад</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    jQuery(function ($) {
+
+        clientId = {{ clientId }};
+        clientKeys = ["1"];
+        clientObj = {"1": "Завантаження ... "};
+        categoryKeys = [];
+        categoryObj = {};
+        masterKeys = [];
+        masterObj = {};
+        uploadedFiles = [];
+        var res = $("#res");
+        formz = document.forms.namedItem("uploadImgsName");
+        formData = new FormData(formz);
+
+        var formSchema = {
+            "schema": {
+                "car_job": {
+                    "type": "object",
+                    "properties": {
+
+                        "client": {
+                            "type": "string",
+                            "title": "Клієнт",
+                            "enum": clientKeys
+                        },
+                        "jobDate": {
+                            "type": "string",
+                            "title": "Дата замовлення",
+                            "default": moment().format("DD.MM.YYYY")
+                        },
+                        "carCategories": {
+                            "type": "array",
+                            "title": "Завдання",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "jobCategory": {
+                                        "type": "string",
+                                        "title": "Категорія замовлення",
+                                        "enum": categoryKeys
+                                    },
+                                    "master": {
+                                        "type": "string",
+                                        "title": "Виконавець",
+                                        "enum": masterKeys
+                                    },
+                                    "jobDescriptions": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "description": {
+                                                    "type": "string",
+                                                    "title": "Опис",
+                                                    "required": true
+                                                },
+                                                "price": {
+                                                    "type": "number",
+                                                    "title": "Ціна",
+                                                    "required": true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "paidSalaryJob": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "master": {
+                                        "type": "string",
+                                        "title": "Виконавець",
+                                        "enum": masterKeys
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "title": "Нотатки",
+                                        "required": false
+                                    },
+                                    "price": {
+                                        "type": "number",
+                                        "title": "Сума",
+                                        "required": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "form": [
+                {
+                    "type": "button",
+                    "title": "<i class='fa fa-plus'></i>&nbsp;&nbsp;<i class='fa fa-user'></i>",
+                    "onClick": function(e, values){
+                        e.preventDefault();
+
+                        var addClientModalWindow = $("#createClientModal");
+                        addClientModalWindow.modal('show');
+
+                    }
+                },
+                {
+                    "key": "car_job.client",
+                    "titleMap": clientObj
+                },
+                {
+                    "key": "car_job.jobDate",
+                    "htmlClass": "clearfix",
+                    "fieldHtmlClass": "jod-date-picker"
+                },
+                {
+                    "type": "array",
+                    "title": "<h4 class='text-center'>Виконане завдання:</h4>",
+                    "description": "Блок для Моя абажерка.",
+                    "items": {
+                        "type": "section",
+                        "items": [
+                            {
+                                "key": "car_job.carCategories[].jobCategory",
+                                "titleMap": categoryObj
+                            },
+                            {
+                                "key": "car_job.carCategories[].master",
+                                "titleMap": masterObj
+                            },
+                            {
+                                "type": "array",
+                                "items": [
+                                    "car_job.carCategories[].jobDescriptions[]"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "array",
+                    "title": "<h4 class='text-center'>Витрати:</h4>",
+                    "htmlClass": "margin-bottom-15",
+                    "items": {
+                        "type": "section",
+                        "items": [
+                            {
+                                "key": "car_job.paidSalaryJob[].master",
+                                "titleMap": masterObj
+                            },
+                            {
+                                "key": "car_job.paidSalaryJob[].description"
+                            },
+                            {
+                                "key": "car_job.paidSalaryJob[].price"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "section",
+                    "items": [
+                        {
+                            "type": "submit",
+                            "title": "Створити"
+                        }
+                    ]
+                }
+            ],
+            onSubmit: function(errors, values){
+
+                /////////////////////////////////////////////////////////////////
+                var checkEmptyCat = false;
+                var doubleCheck = false;
+
+                values.car_job.carCategories.forEach(function(el){
+
+                    if (el.jobDescriptions) {
+                        checkEmptyCat = true;
+                    } else {
+                        checkEmptyCat = false;
+                        doubleCheck = true;
+                    }
+                });
+
+                if (!checkEmptyCat || doubleCheck) {
+                    res.html('<div class="alert alert-danger" role="alert">Категорія завдання не повинна бути пустою.</div>');
+
+                    return;
+                }
+                if (values.car_job.client == '-1') {
+                    res.html('<div class="alert alert-danger" role="alert">Потрібно вибрати клієнта</div>');
+
+                    return;
+                }
+                var checkOnJobCatOrMasterEmpty = false;
+                values.car_job.carCategories.forEach(function(el){
+
+                    if (el.jobCategory == '-1' || el.master == '-1') {
+                        checkOnJobCatOrMasterEmpty = true;
+                    }
+                });
+                if (checkOnJobCatOrMasterEmpty) {
+                    res.html('<div class="alert alert-danger" role="alert">Потрібно вибрати категорію і майстра в виконаному завданні.</div>');
+
+                    return;
+                }
+                var checkOnPaidSalaryMasterEmpty = false;
+                values.car_job.paidSalaryJob.forEach(function(el){
+
+                    if (el.master == '-1') {
+                        checkOnPaidSalaryMasterEmpty = true;
+                    }
+                });
+                if (checkOnPaidSalaryMasterEmpty) {
+                    res.html('<div class="alert alert-danger" role="alert">Потрібно вибрати майстра в блоці *Виплачена зарплата*.</div>');
+
+                    return;
+                }
+
+                /////////////////////////////////////////////////////////////////
+
+                var submitUrl = Routing.generate('cto_jobs_new_fromJSONFORM');
+
+//                var form = document.forms.namedItem("uploadImgsName");
+//                var formData = new FormData(form);
+
+                if (errors) {
+                    var subm = false;
+
+                    $.each(errors, function(ind, val){
+                        if (val.attribute == "type" && val.details[0] == "number") {
+                            res.html('<div class="alert alert-danger" role="alert">Ціна повинна бути цифрою.</div>');
+
+                            return;
+                        }
+                        subm = true;
+                    });
+                    if (subm) {
+
+                        $.post(submitUrl, JSON.stringify(values))
+                            .success(function(response){
+                                if (response.status == "ok") {
+                                    if (uploadedFiles.length > 0) {
+
+                                        var addedPicturesToJobUrl = Routing.generate('ajax_cto_addedPicturesToJob', {"id": response.jid});
+                                        $.ajax({
+                                            url: addedPicturesToJobUrl,
+                                            type: "POST",
+                                            data: formData,
+                                            processData: false,  // tell jQuery not to process the data
+                                            contentType: false   // tell jQuery not to set contentType
+                                        })
+                                        .done(function() {
+                                            var returnUrl = Routing.generate('cto_jobs_show', {"id": response.jid});
+                                            window.location.replace(returnUrl);
+                                        });
+
+                                    } else {
+                                        var returnUrl = Routing.generate('cto_jobs_show', {"id": response.jid});
+                                        window.location.replace(returnUrl);
+                                    }
+                                }
+                            })
+                            .error(function(error){
+                                console.log(error);
+                            });
+                    }
+                } else {
+                    $.post(submitUrl, JSON.stringify(values))
+                        .success(function(response){
+                            if (response.status == "ok") {
+
+                                if (uploadedFiles.length > 0) {
+
+                                    var addedPicturesToJobUrl = Routing.generate('ajax_cto_addedPicturesToJob', {'id': response.jid});
+                                    $.ajax({
+                                        url: addedPicturesToJobUrl,
+                                        type: "POST",
+                                        data: formData,
+                                        processData: false,  // tell jQuery not to process the data
+                                        contentType: false   // tell jQuery not to set contentType
+                                    })
+                                    .done(function() {
+                                        var returnUrl = Routing.generate('cto_jobs_show', {"id": response.jid});
+                                        window.location.replace(returnUrl);
+                                    });
+
+                                } else {
+                                    var returnUrl = Routing.generate('cto_jobs_show', {"id": response.jid});
+                                    window.location.replace(returnUrl);
+                                }
+                            }
+                        })
+                        .error(function(error){
+                            console.log(error);
+                        });
+//                console.log(values);
+                }
+            }
+        };
+
+        var formObj = $("#custom_form form");
+
+        formObj.on("click", "input[type=text].jod-date-picker", function(){
+            $(this).datepicker({
+                format: "dd.mm.yyyy",
+                orientation: "top left",
+                todayBtn: true,
+                clearBtn: true,
+                language: "uk",
+                calendarWeeks: true,
+                autoclose: true,
+                todayHighlight: true
+            });
+            $(this).datepicker('show');
+        });
+
+        var jobCategoriesUrl = Routing.generate('ajax_cto_get_jobCategories');
+        $.get(jobCategoriesUrl)
+            .success(function(response){
+                if (response.categories.length > 0) {
+                        categoryKeys.push(-1);
+                        categoryObj[-1] = "Виберіть категорію";
+                    $.each(response.categories, function(key, value){
+                        categoryKeys.push(value.id);
+                        categoryObj[value.id] = value.name;
+                    });
+                    if (response.masters.length > 0) {
+                            masterKeys.push(-1);
+                            masterObj[-1] = "Виберіть виконавця";
+                        $.each(response.masters, function(key, value){
+                            masterKeys.push(value.id);
+                            masterObj[value.id] = value.name;
+                        });
+                    }
+
+                    res.html('');
+                    formObj.jsonForm(formSchema);
+
+                    clients = $(document.getElementById("jsonform-0-elt-car_job.client"));
+                    var getClientsUrl = Routing.generate('ajax_cto_get_clients');
+                    $.get(getClientsUrl)
+                        .success(function(responseClient){
+                            clients.html('');
+                            if (responseClient.clients.length > 0) {
+                                clients.append('<option value="-1">Виберіть клієнта</option>');
+                                $.each(responseClient.clients, function(key, value){
+                                    if (clientId == value.id) {
+                                        clients.append('<option value="' + value.id + '" selected>' + value.name + '</option>');
+                                    } else  {
+                                        clients.append('<option value="' + value.id + '">' + value.name + '</option>');
+                                    }
+                                });
+
+                                clients.selectpicker({
+                                    liveSearch: true
+                                });
+
+                            } else {
+                                clients.append('<option value="" disabled="disabled">Клієнтів не знайдено.</option>');
+                            }
+                        })
+                        .error(function(error){
+                            console.log(error);
+                        })
+                    ;
+                } else {
+                    // no categories ?
+                }
+            })
+            .error(function(error){
+                console.log(error);
+            })
+        ;
+
+        // getElementById
+        function $id(id) {
+            return document.getElementById(id);
+        }
+
+        // output information
+        function Output(msg) {
+            var m = $id("messages");
+            m.innerHTML = msg + m.innerHTML;
+        }
+        // file drag hover
+        function FileDragHover(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            e.target.className = (e.type == "dragover" ? "hover" : "");
+        }
+        // file selection
+        function FileSelectHandler(e) {
+
+            // cancel event and hover styling
+            FileDragHover(e);
+
+            // fetch FileList object
+            var files = e.target.files || e.dataTransfer.files;
+
+            // process all File objects
+            for (var i = 0, f; f = files[i]; i++) {
+                ParseFile(f);
+            }
+        }
+        function ParseFile(file) {
+            if (file.type.indexOf("image") == 0) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    Output(
+                            "<p><strong>" + file.name + "</strong><br />" +
+                            '<img src="' + e.target.result + '" class="img-responsive" /></p>'
+                    );
+                };
+                reader.readAsDataURL(file);
+                uploadedFiles.push(file);
+                formData.append(uploadedFiles.length.toString(), file);
+            }
+        }
+        // initialize
+        function Init() {
+
+            fileselect = $id("fileselect");
+            filedrag = $id("filedrag");
+
+            // file select
+            fileselect.addEventListener("change", FileSelectHandler, false);
+
+            var xhr = new XMLHttpRequest();
+            if (xhr.upload) {
+
+                // file drop
+                filedrag.addEventListener("dragover", FileDragHover, false);
+                filedrag.addEventListener("dragleave", FileDragHover, false);
+                filedrag.addEventListener("drop", FileSelectHandler, false);
+                filedrag.style.display = "block";
+            }
+
+        }
+        if (window.File && window.FileList && window.FileReader) {
+            Init();
+        }
+
+    }); // jQuery end
+</script>
+{% endblock javascripts %}

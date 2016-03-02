@@ -1,0 +1,57 @@
+{% extends "::base.html.twig" %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Налаштування:
+                <div class="pull-right">
+                    <a href="{{ path('cto_admin_settings_edit') }}" class="btn btn-sm btn-warning"><i class="fa fa-pencil"></i>&nbsp;&nbsp;&nbsp;Редагувати</a>&nbsp;&nbsp;
+                    <a href="{{ path('adminUser_home') }}" class="btn btn-sm btn-success"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;&nbsp;Назад</a>
+                </div>
+            </h3>
+        </div>
+    </div>
+
+    <br>
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+            <p>
+                <span class="font-bolder">
+                    Імя:&nbsp;
+                </span>
+                {{ user.firstName }}
+            </p>
+            <p>
+                <span class="font-bolder">
+                    Прізвище:&nbsp;
+                </span>
+                {{ user.lastName }}
+            </p>
+            <p>
+                <span class="font-bolder">
+                    Телефон:&nbsp;
+                </span>
+                +38 {{ user.phone }}
+            </p>
+            <hr>
+            <p>
+                <span class="font-bolder">
+                    Баланс (СМС сервіс):&nbsp;
+                </span>
+                {{ balance | number_format(2, '.', ',') }} грн.
+            </p>
+
+            <p>
+                Можна відправити приблизно:
+                <span class="font-bolder">
+                    {{ (balance / 0.2) | round(0, 'floor') }}
+                </span>
+                повідомлень
+            </p>
+
+        </div>
+    </div>
+
+{% endblock body %}

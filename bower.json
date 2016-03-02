@@ -1,0 +1,21 @@
+{
+  "name": "cto project",
+  "description": "cto project",
+  "version": "0.0.1",
+  "homepage": "",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "jquery": "~2",
+    "bootstrap": "~3",
+    "moment": "~2",
+    "font-awesome": "~4",
+    "bootstrap-select": "~1.7.2",
+    "bootstrap-datepicker": "~1.4.0",
+    "jsonform": "*",
+    "selectize": "0.12.1",
+    "eonasdan-bootstrap-datetimepicker": "~4.15.35",
+    "fullcalendar": "~2.4.0",
+    "jquery-colorbox": "colorbox#~1.6.3"
+  }
+}

@@ -1,0 +1,87 @@
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            {% if app.user and is_granted('ROLE_CTO') %}
+                <a class="navbar-brand" href="{{ path('cto_jobs_home') }}">
+                    {{ app.user.ctoName }}
+                </a>
+            {% endif %}
+
+            {% if app.user and is_granted('ROLE_ADMIN') %}
+                <a class="navbar-brand" href="{{ path('adminUser_home') }}">
+                    Панель керування адміністратора
+                </a>
+            {% endif %}
+
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                {% if app.user and is_granted('ROLE_CTO') %}
+                    <li class="{{ 'cto_jobs_' in app.request.get('_route') ? 'active' : '' }}">
+                        <a href="{{path('cto_jobs_list')}}"><i class="fa fa-tasks"></i>&nbsp;Замовлення</a>
+                    </li>
+                    <li class="{{ 'cto_client_' in app.request.get('_route') ? 'active' : '' }}">
+                        <a href="{{path('cto_client_home')}}"><i class="fa fa-users"></i>&nbsp;Клієнти</a>
+                    </li>
+                    <li class="{{ 'cto_masters_' in app.request.get('_route') ? 'active' : '' }}">
+                        <a href="{{path('cto_masters_list')}}"><i class="fa fa-female"></i>&nbsp;Виконавці</a>
+                    </li>
+                    <li class="{{ 'cto_statistics_' in app.request.get('_route') ? 'active' : '' }}">
+                        <a href="{{ path("cto_statistics_filter") }}"><i class="fa fa-line-chart"></i>&nbsp;Статистика</a>
+                    </li>
+                    <li class="{{ 'cto_export_' in app.request.get('_route') ? 'active' : '' }}">
+                        <a href="{{ path("cto_export_csv") }}"><i class="fa fa-download"></i>&nbsp;Експорт</a>
+                    </li>
+                    <li class="{{ 'cto_notification_' in app.request.get('_route') ? 'active' : '' }}">
+                        <a href="{{path('cto_notification_home')}}" ><i class="fa fa-bell"></i>&nbsp;Сповіщення&nbsp;&nbsp;<span id="badge"></span></a>
+                    </li>
+                {% endif %}
+                {% if app.user and is_granted('ROLE_ADMIN') %}
+                    <li class="{{ app.request.attributes.get('_route') == 'admin_ctoUsers_list' ? 'active'}}">
+                        <a href="{{path('admin_ctoUsers_list')}}"><i class="fa fa-users"></i>&nbsp;Список студій</a>
+                    </li>
+                    <li class="{{ 'admin_ctoCategory_' in app.request.get('_route') ? 'active' : '' }}">
+                        <a href="{{ path('admin_ctoCategory_list') }}"><i class="fa fa-list"></i>&nbsp;Категорії</a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-wrench"></i>&nbsp;Адміністративне меню&nbsp;&nbsp;<span class="caret"></span>&nbsp;&nbsp;</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#"><i class="fa fa-cogs"></i>&nbsp;&nbsp;пункт 1</a></li>
+                            <li><a href="#"><i class="fa fa-cogs"></i>&nbsp;&nbsp;пункт 2</a></li>
+                            <li><a href="#"><i class="fa fa-cogs"></i>&nbsp;&nbsp;пункт 3</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ app.user.firstName }} {{ app.user.lastName }}&nbsp;&nbsp;<span class="caret"></span>&nbsp;&nbsp;</a>
+                    <ul class="dropdown-menu">
+                        {% if app.user and is_granted('ROLE_ADMIN') %}
+                            <li><a href="{{ path('cto_admin_settings_show') }}"><i class="fa fa-cogs"></i>&nbsp;&nbsp;Налаштування Адм</a></li>
+                        {% endif %}
+                        {% if app.user and is_granted('ROLE_CTO') %}
+                            <li><a href="{{ path('ctoUser_settings_edit') }}"><i class="fa fa-cogs"></i>&nbsp;&nbsp;Налаштування</a></li>
+                        {% endif %}
+                        <li role="separator" class="divider"></li>
+                        <li>
+                            {% if (app.user and is_granted('ROLE_CTO')) and (app.user and is_granted('ROLE_PREVIOUS_ADMIN')) %}
+                                <a href="{{ path('adminUser_home', {'_switch_user': '_exit'}) }}"><i class="fa fa-sign-out"></i>&nbsp;&nbsp;Повернутись до адмін панелі</a>
+                            {% else %}
+                                <a href="{{path('logout')}}"><i class="fa fa-sign-out"></i>&nbsp;&nbsp;Вихід</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div> {# end navbar collapse#}
+    </div>  {# end container#}
+</nav>

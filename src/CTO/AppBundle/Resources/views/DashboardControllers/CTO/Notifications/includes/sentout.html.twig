@@ -1,0 +1,81 @@
+<div class="tab-pane fade in active" id="sentout">
+
+    <div class="row no-margin">
+        <table class="table table-hover table-responsive">
+            <thead>
+            <tr>
+                <th>
+                    #
+                </th>
+                <th class="notification-to">
+                    Кому
+                </th>
+                <th class="notification-when">
+                    Коли
+                </th>
+                <th>
+                    Повідомлення
+                </th>
+                <th>
+                    Категорія
+                </th>
+                <th class="notification-action text-center">
+                    Статус
+                </th>
+                <th class="text-center">
+                    Звіт
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for sentoutItem in sentout %}
+                <tr>
+                    <td style="vertical-align: middle;">
+                        {{ sentoutItem.id }}
+                    </td>
+                    <td style="vertical-align: middle;">
+                        {% if sentoutItem.type == constant('CTO\\AppBundle\\Entity\\Notification::TYPE_BROADCAST') %}
+                            <span title="Розсилка"><i class="fa fa-paper-plane"></i>&nbsp;&nbsp;</span>
+                            <span data-toggle="tooltip" data-placement="left" title="{{ sentoutItem.broadcastTo | userNames }}" class="broadcast-tooltip">Розсилка</span>
+                        {% elseif sentoutItem.type == constant('CTO\\AppBundle\\Entity\\Notification::TYPE_NOTIFICATION') %}
+                            <span title="Нагадування">&nbsp;&nbsp;<i class="fa fa-info"></i>&nbsp;&nbsp;</span>
+                            <a href="{{ path('cto_client_show', {'slug': sentoutItem.clientCto.slug}) }}">{{ sentoutItem.clientCto.fullName }}</a>
+                        {% elseif sentoutItem.type == constant('CTO\\AppBundle\\Entity\\Notification::TYPE_RECOMMENDATION') %}
+                            <span title="Рекомендація">&nbsp;<i class="fa fa-pinterest-p"></i>&nbsp;&nbsp;</span>
+                            <a href="{{ path('cto_client_show', {'slug': sentoutItem.clientCto.slug}) }}">{{ sentoutItem.clientCto.fullName }}</a>
+                        {% endif %}
+                    </td>
+                    <td style="vertical-align: middle;">
+                        {{ sentoutItem.whenSend | date('d.m.Y H:i') }}
+                    </td>
+                    <td style="vertical-align: middle;">
+                        {{ sentoutItem.description }}
+                    </td>
+                    <td style="vertical-align: middle;">
+                        {% if sentoutItem.jobCategory.name is defined %}
+                            {{ sentoutItem.jobCategory.name }}
+                        {% endif %}
+                    </td>
+                    <td style="vertical-align: middle;" class="text-center">
+                        {% if sentoutItem.status == constant('CTO\\AppBundle\\Entity\\Notification::STATUS_SEND_OK') %}
+                            <span style="color: #0cba59;">Відправлено</span>
+                        {% elseif sentoutItem.status == constant('CTO\\AppBundle\\Entity\\Notification::STATUS_ABORTED') %}
+                            <span style="color: #bab55a;">Скасовано</span>
+                        {% else %}
+                            <span style="color: #ba5359;">Помилка відправки</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ path("admin_cto_reports", {"id": sentoutItem.id }) }}"> Показати </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <div class="text-center">
+            {{ knp_pagination_render(sentout) }}
+        </div>
+    </div>
+
+</div>

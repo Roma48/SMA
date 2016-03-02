@@ -1,0 +1,243 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+
+    <!-- Modal for create new client -->
+    <div class="modal fade" id="addRecommendationModal" tabindex="-1" role="dialog" aria-labelledby="addRecommendationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Додати рекомендації:</h4>
+                </div>
+                <div class="modal-body">
+
+                    {{ form_start(form, {'attr': {'id': 'addRecommendationForm'}}) }}
+                        <div id="recommendations_collection">
+                            <ul class="recommendations-ul" data-prototype="{{ form_widget(form.recommendations.vars.prototype)|e }}">
+                                {% for recommendation in form.recommendations %}
+                                    <li>
+                                        <div class="error-handling">
+                                            {{ form_label(recommendation.title) }}
+                                            {{ form_widget(recommendation.title) }}
+                                            {{ form_errors(recommendation.title) }}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <br>
+                        <div>
+                            <div class="text-center">
+                                <button type="button" class="btn btn-success" id="addRecommendationSubmit">Виконати</button>
+                            </div>
+                            <p id="addRecommendationForm_Errors" style="color: red; font-weight: bolder; margin-top: 10px;"></p>
+                        </div>
+                        <div class="hidden">
+                            {{ form_rest(form) }}
+                        </div>
+                    {{ form_end(form) }}
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Назад</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Деталі замовлення
+                <div class="pull-right">
+                    <a href="{{ path('cto_jobs_remove', {'id': job.id}) }}" onclick="return confirm('Ви впевнені що хочете видалить?')" class="btn btn-sm btn-danger"><i class="fa fa-trash-o"></i>&nbsp;&nbsp;Видалити</a>
+                    <div style="display: inline-block; width: 30px;"></div>
+                    <a href="{{ path("cto_jobs_edit", {"id": job.id}) }}" class="btn btn-sm btn-warning">Редагувати замовлення</a>
+                    <a href="#" class="btn btn-sm btn-success" id="addRecommendationButton">Додати рекомендацію</a>
+                    <a href="{{ path('cto_jobs_addReminder', {'jobId': job.id}) }}" class="btn btn-sm btn-success">Додати нагадування</a>
+                    <a href="{{ path('cto_jobs_list') }}" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;&nbsp;Назад</a>
+                </div>
+            </h3>
+            <br>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <h4><u>Загальна інформація про клієнта:</u></h4>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Ім'я: </span>{{ job.client.firstName }}&nbsp;&nbsp;(<a href="{{ path('cto_client_show', {"slug": job.client.slug }) }}">Профайл кліента</a>)</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Прізвище: </span>{{ job.client.lastName }}</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Кількість замовлень: </span> {{ visits }} </p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Дата реєстрації: </span>{{ job.client.createdAt | date("d.m.Y") }}</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Дата останнього візиту: </span>{{ job.client.lastVisitDate | date("d.m.Y") }}</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <h4><u>Замовлення:</u></h4>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Дата: </span>{{ job.jobDate | date("d.m.Y") }}</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Витрачено (клієнтом): </span>{{ job.totalCost | number_format(2, '.', ',') }} грн.</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Витрачено (Pri4a studio): </span>{{ job.totalSpend | number_format(2, '.', ',') }} грн.</p>
+                    <p style="color: red;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Прибуток: </span>{{ (job.totalCost - job.totalSpend) | number_format(2, '.', ',') }} грн.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <div id="gallery">
+                {% for picture in job.pictures %}
+                    {% if (loop.index <= 15 ) %}
+                    <div style="width: 18%; display: inline-block; margin-bottom: 10px; margin-right: 5px;">
+                        <a class="group1" href="{{ picture.path | S3Path }}">
+                            <img src="{{ picture.path | S3Path }}" class="img-responsive" style="vertical-align: top; height: 60px;" />
+                        </a>
+                    </div>
+                    {% else %}
+                        <div class="hidden">
+                            <a class="group1" href="{{ picture.path | S3Path }}">
+                                <img src="{{ picture.path | S3Path }}" class="img-responsive" style="vertical-align: top;" />
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <h4 class="text-center"><u>По категоріям:</u></h4>
+
+            {% for category in job.carCategories %}
+                <h5>&nbsp;&nbsp;&nbsp;{{ category.jobCategory.name }}</h5>
+                {% if category.jobDescriptions | length > 0 %}
+                    <div class="well well-sm">
+                        <p><span class="font-bolder">Майстер: </span>{{ category.master.fullName }}</p>
+                        {% for description in category.jobDescriptions %}
+                            <p><span class="font-bolder">Опис: </span>{{ description.description }}</p>
+                            <p><span class="font-bolder">Ціна: </span>{{ description.price | number_format(2, '.', ',') }} грн.</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <h4 class="text-center"><u>Витрати:</u></h4>
+            {% if job.paidSalaryJob | length > 0 %}
+                <h5>&nbsp;&nbsp;&nbsp;Витрати:</h5>
+                <div class="well well-sm">
+                    {% for paid in job.paidSalaryJob %}
+                        <p><span class="font-bolder">Майстер: </span>{{ paid.master.fullName }}</p>
+                        <p><span class="font-bolder">Нотатки: </span>{{ paid.description }}</p>
+                        <p><span class="font-bolder">Сума: </span>{{ paid.price | number_format(2, '.', ',') }} грн.</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            {% if job.recommendations | length > 0 %}
+            <h4 class="text-center"><u>Рекомендації:</u></h4>
+                <div class="well well-sm">
+                    {% for recommendation in job.recommendations %}
+                        <div class="recommendation-item">
+                            {{ loop.index }}. {{ recommendation.title }}
+                            <div class="pull-right">
+                                <a href="{{ path('cto_jobs_addRecomendation', {'jobId': job.id, 'recommendId': recommendation.id}) }}">Створити нагадування</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    jQuery(function ($) {
+
+        $(".group1").colorbox({
+            rel:'group1',
+            transition:"elastic",
+            scalePhotos: true,
+            maxHeight: "85%",
+            arrowKey: true,
+            speed: 300,
+            slideshowSpeed: 4000,
+            fadeOut: 500,
+            slideshow: true
+        });
+
+        var recommendationForm = $("#addRecommendationForm");
+//        recommendationForm.on('submit', function(e) {
+//            e.preventDefault();
+//        });
+
+        var addRecommendationsBtn = $("#addRecommendationButton");
+        var modal = $("#addRecommendationModal");
+        var recommendationForm_Errors = $("#addRecommendationForm_Errors");
+
+        var $collectionHolder;
+        var $addTagLink = $('<br><a href="#" class="bnt btn-sm btn-info">Додати рекомендацію</a>');
+        var $newLinkLi = $('<li></li>').append($addTagLink);
+
+        $collectionHolder = $('#recommendations_collection ul.recommendations-ul');
+        $collectionHolder.append($newLinkLi);
+        $collectionHolder.data('index', $collectionHolder.find(':input').length);
+        $collectionHolder.find('li').each(function() {
+            addCarFormDeleteLink($(this));
+        });
+        $addTagLink.on('click', function(e) {
+            e.preventDefault();
+            addCarForm($collectionHolder, $newLinkLi);
+        });
+
+        function addCarFormDeleteLink($tagFormLi) {
+            var $removeFormA = $('<a href="#" class="btn btn-xs btn-danger delete-except-date">Видалити</a>');
+            $tagFormLi.append($removeFormA);
+
+            $removeFormA.on('click', function(e) {
+                e.preventDefault();
+                $tagFormLi.remove();
+            });
+        }
+
+        function addCarForm($collectionHolder, $newLinkLi) {
+            var prototype = $collectionHolder.data('prototype');
+            var index = $collectionHolder.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $collectionHolder.data('index', index + 1);
+            var $newFormLi = $('<li></li>').append(newForm);
+            $newLinkLi.before($newFormLi);
+
+            addCarFormDeleteLink($newFormLi);
+        }
+
+        addRecommendationsBtn.click(function(e){
+            e.preventDefault();
+
+            modal.modal('show');
+        });
+
+        $("#addRecommendationSubmit").click(function(){
+
+            if (($collectionHolder.find('li').length - 1) == 0) {
+                recommendationForm_Errors.html('Необхідно додати мінімум одну рекомендацію');
+            } else {
+                recommendationForm_Errors.html('');
+
+                // OK and submit form
+                recommendationForm.submit();
+            }
+        });
+    });
+</script>
+
+{% endblock javascripts %}

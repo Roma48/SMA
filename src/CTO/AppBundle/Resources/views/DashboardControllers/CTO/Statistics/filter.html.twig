@@ -1,0 +1,292 @@
+{% extends "::base.html.twig" %}
+
+{% block body %}
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist" id="place-tab-sh">
+        <li class="{{ tabName == 'general' ? 'active' }}"><a href="{{ path('cto_statistics_filter', { 'tabName' : 'general' }) }}">Загальна</a></li>
+        <li class="{{ tabName == 'masters' ? 'active' }}"><a href="{{ path('cto_statistics_filter', { 'tabName' : 'masters' }) }}">По майстрам</a></li>
+    </ul>
+
+    {% if tabName %}
+        {{ block(tabName) }}
+    {% else %}
+        {{ block('general') }}
+    {% endif %}
+
+{% endblock body %}
+
+{% block general %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Статистика загальна:
+                <div class="pull-right">
+                    <a href="{{ path('cto_statistics_filter', {"tabName": tabName}) }}" class="btn btn-sm btn-warning"><i class="fa fa-refresh"></i>&nbsp;&nbsp;&nbsp;Очистити фільтр</a>
+                </div>
+            </h3>
+            <br>
+            <div class="text-center filter-form">
+                {{ form_start(filterForm, {'attr': {'novalidate': 'novalidate'}}) }}
+                {{ form_widget(filterForm.category) }}
+                {{ form_widget(filterForm.masters) }}
+                {{ form_widget(filterForm.dateFrom) }}
+                {{ form_widget(filterForm.dateTo) }}
+                <div class="hidden">
+                    {{ form_rest(filterForm) }}
+                </div>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="submit" class="btn btn-default"><i class="fa fa-filter fa-fw"></i>&nbsp;Фільтрувати</button>
+                {{ form_end(filterForm) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th width="1%">#</th>
+                    <th class="text-center" width="1%">Завдання</th>
+                    <th class="text-center" width="1%">Витрачено клієнтом</th>
+                    <th class="text-center" width="1%">Витрачено студією</th>
+                    <th class="text-center" width="1%">Дата завдання</th>
+                    <th class="text-center" width="50%">Категорії</th>
+                    <th class="text-center" width="45%">Витрати</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set totalCost = 0 %}
+                {% set totalSpend = 0 %}
+                {% for job in jobs %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><a href="{{ path("cto_jobs_show", {"id": job.id}) }}">Завдання_{{ job.id }}</a></td>
+                        <td>{{ job.totalCost | number_format(2, '.', ',') }} грн.</td>
+                        {% set totalCost = totalCost + job.totalCost %}
+                        <td>{{ job.totalSpend | number_format(2, '.', ',') }} грн.</td>
+                        {% set totalSpend = totalSpend + job.totalSpend %}
+                        <td>{{ job.jobDate | date("d.m.Y") }}</td>
+                        <td> {# category start #}
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th class="text-center">Категорія</th>
+                                    <th class="text-center">Майстер</th>
+                                    <th class="text-center">Виконана робота</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for category in job.carCategories %}
+                                    <tr>
+                                        <td>
+                                            {{ category.jobCategory.name }}
+                                        </td>
+                                        <td>
+                                            {{ category.master.fullName }}
+                                        </td>
+                                        <td>
+                                            <table class="table table-hover">
+                                                <thead>
+                                                <tr>
+                                                    <th class="text-center">Опис</th>
+                                                    <th class="text-center">Вартість</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% set descSumm = 0 %}
+                                                {% for description in category.jobDescriptions %}
+                                                    <tr>
+                                                        <td>
+                                                            {{ description.description }}
+                                                        </td>
+                                                        <td>
+                                                            {{ description.price | number_format(2, '.', ',') }} грн.
+                                                            {% set descSumm = descSumm + description.price %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                <tr>
+                                                    <td class="text-right"><b>Всього:</b></td>
+                                                    <td>{{ descSumm  | number_format(2, '.', ',')}} грн.</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </td> {# category end #}
+                        <td> {# paid start #}
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th class="text-center">Майстер</th>
+                                    <th class="text-center">Нотатки</th>
+                                    <th class="text-center">Сума</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% set paidSumm = 0 %}
+                                {% for paid in job.paidSalaryJob %}
+                                    <tr>
+                                        <td>
+                                            {{ paid.master.fullName }}
+                                        </td>
+                                        <td>
+                                            {{ paid.description }}
+                                        </td>
+                                        <td>
+                                            {{ paid.price | number_format(2, '.', ',') }} грн.
+                                            {% set paidSumm = paidSumm + paid.price %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td class="text-right" colspan="2"><b>Всього:</b></td>
+                                    <td>{{ paidSumm  | number_format(2, '.', ',')}} грн.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td> {# paid end #}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <p><b>Всього витрачено клієнтами:</b> {{ totalCost | number_format(2, '.', ',')}} грн.</p>
+            <p><b>Всього витрачено студією:</b> {{ totalSpend | number_format(2, '.', ',')}} грн.</p>
+        </div>
+    </div>
+{% endblock general %}
+
+{% block masters %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Статистика по майстрам:
+                <div class="pull-right">
+                    <a href="{{ path('cto_statistics_filter', {"tabName": tabName}) }}" class="btn btn-sm btn-warning"><i class="fa fa-refresh"></i>&nbsp;&nbsp;&nbsp;Очистити фільтр</a>
+                </div>
+            </h3>
+            <br>
+            <div class="text-center filter-form">
+                {{ form_start(filterMastersForm, {'attr': {'novalidate': 'novalidate'}}) }}
+                {{ form_widget(filterMastersForm.masters) }}
+                {{ form_widget(filterMastersForm.dateFrom) }}
+                {{ form_widget(filterMastersForm.dateTo) }}
+                <div class="hidden">
+                    {{ form_rest(filterMastersForm) }}
+                </div>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="submit" class="btn btn-default"><i class="fa fa-filter fa-fw"></i>&nbsp;Фільтрувати</button>
+                {{ form_end(filterMastersForm) }}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th width="1%">#</th>
+                    <th class="text-center">Завдання</th>
+                    <th class="text-center">Витрачено клієнтом</th>
+                    <th class="text-center">Витрачено студією</th>
+                    <th class="text-center">Дата завдання</th>
+                    <th class="text-center" width="60%">Витрати</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for paid in masters %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td><a href="{{ path("cto_jobs_show", {"id": paid.carJob.id }) }}">Завдання_{{ paid.carJob.id }}</a></td>
+                            <td>{{ paid.carJob.totalCost | number_format(2, '.', ',') }} грн.</td>
+                            <td>{{ paid.carJob.totalSpend | number_format(2, '.', ',') }} грн.</td>
+                            <td>{{ paid.carJob.jobDate | date("d.m.Y") }}</td>
+                            <td>
+                                {% if selectedMasters | length > 0 %}
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th width="45%">Майстер</th>
+                                            <th width="35%">Нотатки</th>
+                                            <th width="20%">Сума</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    {{ paid.master.fullName }}
+                                                </td>
+                                                <td>
+                                                    {{ paid.description }}
+                                                </td>
+                                                <td>
+                                                    {{ paid.price | number_format(2, '.', ',') }} грн.
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                {% else %}
+                                    Майстра не вибрано
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if selectedMasters | length > 0 %}
+                <b>Статистика по вибраним майстрам:</b>
+                {% set masterTotal = 0 %}
+                {% for item in selectedMasters %}
+                    <p style="padding-left: 25px;">
+                        {{ item.name }} = {{ item.sum | number_format(2, '.', ',') }} грн
+                    </p>
+                    {% set masterTotal = masterTotal + item.sum %}
+                {% endfor %}
+                <p style="padding-left: 25px;"><b>Всього: {{ masterTotal | number_format(2, '.', ',') }} грн.</b></p>
+                <hr>
+            {% else %}
+                <p><b>Статистика по вибраним майстрам:</b> Майстра не вибрано</p>
+            {% endif %}
+
+            <p><b>Всього витрачено клієнтами:</b> {{ totalSums.cost | number_format(2, '.', ',')}} грн.</p>
+            <p><b>Всього витрачено студією:</b> {{ totalSums.spend | number_format(2, '.', ',')}} грн.</p>
+
+        </div>
+    </div>
+
+{% endblock masters %}
+
+{% block javascripts %}
+    <script>
+        jQuery(function ($) {
+            $("#stat_filter_category").selectpicker();
+            $("#stat_filter_masters").selectpicker({
+                noneSelectedText: "Виберіть майстрів",
+                liveSearch: true
+            });
+            $("#stat_masters_filter_masters").selectpicker({
+                noneSelectedText: "Виберіть майстрів",
+                liveSearch: true
+            });
+
+            $('.date-picker-cto').datepicker({
+                format: "dd.mm.yyyy",
+                orientation: "top left",
+//            todayBtn: "linked",
+                todayBtn: true,
+                clearBtn: true,
+                language: "uk",
+                calendarWeeks: true,
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+    </script>
+{% endblock javascripts %}

@@ -1,0 +1,76 @@
+{% extends "::base.html.twig" %}
+
+{% block body %}
+    <br>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist" id="place-tab-sh">
+        <li class="{{ tabName == 'brands' ? 'active' }}"><a href="{{ path('cto_cars_home', { 'tabName' : 'brands' }) }}">Марки</a></li>
+        <li class="{{ tabName == 'models' ? 'active' }}"><a href="{{ path('cto_cars_home', { 'tabName' : 'models' }) }}">Моделі</a></li>
+    </ul>
+
+    {% if tabName %}
+        {{ block(tabName) }}
+    {% else %}
+        {{ block('brands') }}
+    {% endif %}
+
+{% endblock body %}
+
+{% block brands %}
+    {% include 'CTOAppBundle:DashboardControllers/Admin/Cars:brands_tab.html.twig' %}
+{% endblock brands %}
+
+{% block models %}
+    {% include 'CTOAppBundle:DashboardControllers/Admin/Cars:models_tab.html.twig' %}
+{% endblock models %}
+
+{% block javascripts %}
+<script>
+    jQuery(function ($) {
+        var select = $('#cars_selection');
+        var result = $('#model_result');
+
+        select.selectpicker();
+        select.change(function(event){
+            result.html('');
+            getModels(event.target.value);
+
+        });
+
+        $('#add_new_model_btn').click(function(){
+            document.location.href = Routing.generate('cto_cars_models_new', {"slug": select[0].value});
+        });
+
+        function getModels(car) {
+            var url = Routing.generate('cto_cars_models_list', {"slug": car});
+
+            $.post(url)
+                .success(function(responce){
+
+                    $.each(responce, function(indx, value){
+                        var url = Routing.generate('cto_cars_model_edit', {"slug": value.slugModel });
+                        result.append('' +
+                            '<div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">' +
+                                '<div class="brand-car-item">' +
+                                    value.name +
+                                    '<div class="pull-right">' +
+                                        '<a href=' + url + ' title="редагувати ' + value.name + '"><i class="fa fa-pencil"></i></a>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>'
+                        );
+                    });
+
+                })
+                .error(function(error){
+                    console.error(error);
+                });
+        }
+
+        if (select[0]) {
+            getModels(select[0].value);
+        }
+
+    });
+</script>
+{% endblock javascripts %}

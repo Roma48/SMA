@@ -1,0 +1,117 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Список клієнтів:
+                <div class="pull-right">
+                    <a href="{{ path('cto_client_new') }}" class="btn btn-sm btn-success"><i class="fa fa-plus"></i>&nbsp;&nbsp;&nbsp;Додати нового</a>
+                </div>
+            </h3>
+            <br>
+            <div class="text-center filter-form">
+                {{ form_start(filterForm, {'action': path('cto_client_filter'), 'attr': {'novalidate': 'novalidate'}}) }}
+                {{ form_widget(filterForm.fullName) }}
+                {{ form_widget(filterForm.phone) }}
+                {{ form_widget(filterForm.dateFrom) }}
+                {{ form_widget(filterForm.dateTo) }}
+                <div class="hidden">
+                    {{ form_rest(filterForm) }}
+                </div>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="submit" class="btn btn-default"><i class="fa fa-filter fa-fw"></i>&nbsp;Фільтрувати</button>
+                &nbsp;&nbsp;&nbsp;
+                <a href="{{ path("cto_client_home") }}" class="btn btn-warning"><i class="fa fa-refresh fa-fw"></i>&nbsp;Відміна</a>
+                {{ form_end(filterForm) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+            <br>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    {% if paginator %}
+                        {#<th class="text-center">{{ knp_pagination_sortable(clients, '#', 'u.id') }}</th>#}
+                        <th class="text-center">#</th>
+                        <th>{{ knp_pagination_sortable(clients, 'Ім\'я', 'u.firstName') }}</th>
+                        <th>{{ knp_pagination_sortable(clients, 'Прізвище', 'u.lastName') }}</th>
+                        <th>Телефон</th>
+                        <th>{{ knp_pagination_sortable(clients, 'Дата замовлення', 'u.lastVisitDate') }}</th>
+                        <th>{{ knp_pagination_sortable(clients, 'Клієнт з', 'u.createdAt') }}</th>
+                        {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+                            <th>{{ knp_pagination_sortable(clients, 'Всьго витрачено', 'u.totalCost') }}</th>
+                        {% endif %}
+                        <th class="text-center">Кількість замовлень</th>
+                        <th class="text-center">Дії</th>
+                    {% else %}
+                        <th class="text-center">#</th>
+                        <th>Ім'я</th>
+                        <th>Прізвище</th>
+                        <th>Телефон</th>
+                        <th>Дата замовлення</th>
+                        <th>Клієнт з</th>
+                        {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+                            <th>Всьго витрачено</th>
+                        {% endif %}
+                        <th class="text-center">Кількість замовлень</th>
+                        <th class="text-center">Дії</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for client in clients %}
+                    <tr>
+                        <td class="text-center">{{ loop.index }}</td>
+                        <td>{{ client.firstName }}</td>
+                        <td>{{ client.lastName }}</td>
+                        <td>{{ client.phone }}</td>
+                        <td>{{ client.lastVisitDate | date("d.m.Y H:i") }}</td>
+                        <td>{{ client.createdAt | date("d.m.Y H:i") }}</td>
+                        {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+                            <td>{{ client.totalCost | number_format(2, '.', ',') }} грн.</td>
+                        {% endif %}
+                        <td class="text-center">{{ client.carJobs | length }}</td>
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <a class="btn btn-default btn-xs"
+                                   href="{{ path('cto_client_show', { 'slug': client.slug }) }}"> Показати </a>
+                                <a class="btn btn-warning btn-xs"
+                                   href="{{ path('cto_client_edit', { 'slug': client.slug }) }}"> Редагувати </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% if paginator %}
+                <div class="text-center">
+                    {{ knp_pagination_render(clients) }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+{% block javascripts %}
+    <script>
+        jQuery(function ($) {
+            $("#clientcars_filter_model").selectpicker();
+
+            $('.date-picker-cto').datepicker({
+                format: "dd.mm.yyyy",
+                orientation: "top left",
+//            todayBtn: "linked",
+                todayBtn: true,
+                clearBtn: true,
+                language: "uk",
+                calendarWeeks: true,
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+    </script>
+{% endblock javascripts %}

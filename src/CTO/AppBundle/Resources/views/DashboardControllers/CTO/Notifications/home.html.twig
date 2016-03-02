@@ -1,0 +1,57 @@
+{% extends "::base.html.twig" %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Сповіщення:
+                <div class="pull-right">
+                    <a href="{{ path('cto_notification_broadcast') }}" class="btn btn-sm btn-success"><i class="fa fa-paper-plane"></i>&nbsp;&nbsp;&nbsp;Зробити розсилку</a>
+                </div>
+            </h3>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs" role="tablist" id="place-tab-sh">
+        <li class="{{ tabName == 'current' ? 'active' }}"><a href="{{ path('cto_notification_home', { 'tabName' : 'current' }) }}">Сьогодні</a></li>
+        <li class="{{ tabName == 'planned' ? 'active' }}"><a href="{{ path('cto_notification_home', { 'tabName' : 'planned' }) }}">Майбутні</a></li>
+        <li class="{{ tabName == 'last' ? 'active' }}"><a href="{{ path('cto_notification_home', { 'tabName' : 'last' }) }}">Минулі</a></li>
+        <li class="{{ tabName == 'sentout' ? 'active' }}"><a href="{{ path('cto_notification_home', { 'tabName' : 'sentout' }) }}">Виконані</a></li>
+    </ul>
+    <br>
+
+    {% if tabName %}
+        {{ block(tabName) }}
+    {% else %}
+        {{ block('current') }}
+    {% endif %}
+
+{% endblock body %}
+
+{% block javascripts %}
+    <script>
+        jQuery(function ($) {
+            $(".broadcast-tooltip").tooltip({
+                html: true
+            });
+        });
+    </script>
+{% endblock javascripts %}
+
+{% block current %}
+    {% include '@CTOApp/DashboardControllers/CTO/Notifications/includes/current.html.twig' %}
+{% endblock current %}
+
+{% block planned %}
+    {% include '@CTOApp/DashboardControllers/CTO/Notifications/includes/planned.html.twig' %}
+{% endblock planned %}
+
+{% block last %}
+    {% include '@CTOApp/DashboardControllers/CTO/Notifications/includes/last.html.twig' %}
+{% endblock last %}
+
+
+{% block sentout %}
+    {% include '@CTOApp/DashboardControllers/CTO/Notifications/includes/sentout.html.twig' %}
+{% endblock sentout %}

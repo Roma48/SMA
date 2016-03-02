@@ -1,0 +1,53 @@
+# you can read more about security in the related section of the documentation
+# http://symfony.com/doc/current/book/security.html
+security:
+    # http://symfony.com/doc/current/book/security.html#encoding-the-user-s-password
+    encoders:
+        CTO\AppBundle\Entity\AdminUser:
+            algorithm: bcrypt
+            cost: 12
+        CTO\AppBundle\Entity\CTOUser:
+            algorithm: bcrypt
+            cost: 12
+
+    # http://symfony.com/doc/current/book/security.html#hierarchical-roles
+    role_hierarchy:
+        ROLE_ADMIN:       [ROLE_USER, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+    # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+    providers:
+        dashboard:
+            entity: {class: CTO\AppBundle\Entity\BaseUser, property: email }
+
+    # the main part of the security, where you can set up firewalls
+    # for specific sections of your app
+    firewalls:
+        dev:
+            pattern:  ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        no_sec:
+            pattern: ^/cto/jsonf
+            security: false
+        dashboard:
+            pattern: ^/
+            anonymous: ~
+            switch_user: true
+            form_login:
+                provider: dashboard
+                login_path: /
+                check_path: /login_check
+                default_target_path: login_home
+                username_parameter: login_form[email]
+                password_parameter: login_form[password]
+            logout:
+                path: /logout
+                target: /
+
+    # with these settings you can restrict or allow access for different parts
+    # of your application based on roles, ip, host or methods
+    # http://symfony.com/doc/current/cookbook/security/access_control.html
+    access_control:
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/cto, roles: [ROLE_ADMIN, ROLE_CTO] }
+        - { path: ^/admin, roles: [ROLE_ADMIN] }

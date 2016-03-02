@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>CTO job report</title>
+    <link href="{{ asset('css/vendors.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/custom.min.css') }}" rel="stylesheet" type="text/css" />
+    {% block stylesheets %}{% endblock %}
+
+</head>
+<body>
+
+    <div class="container">
+        {% block body %}{% endblock %}
+    </div>
+
+    {% block javascript %}
+    {% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Завдання:
+                <div class="pull-right">
+                    <a href="{{ path('cto_jobs_home') }}" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;&nbsp;Назад</a>
+                    <a href="{{ path('cto_jobs_new') }}" class="btn btn-sm btn-success"><i class="fa fa-plus"></i>&nbsp;&nbsp;&nbsp;Нове замовлення</a>
+                </div>
+            </h3>
+            <div class="text-center filter-form">
+                <br>
+                {{ form_start(filterForm, {'action': path('cto_jobs_filter'), 'attr': {'novalidate': 'novalidate'}}) }}
+                {{ form_widget(filterForm.fullName) }}
+                {{ form_widget(filterForm.dateFrom) }}
+                {{ form_widget(filterForm.dateTo) }}
+                <div class="hidden">
+                    {{ form_rest(filterForm) }}
+                </div>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="submit" class="btn btn-default"><i class="fa fa-filter fa-fw"></i>&nbsp;Фільтрувати</button>
+                &nbsp;&nbsp;&nbsp;
+                <a href="{{ path('cto_jobs_list') }}" class="btn btn-warning"><i class="fa fa-refresh fa-fw"></i>&nbsp;Відміна</a>
+                {{ form_end(filterForm) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+            <br>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    {% if paginator %}
+                        <th class="text-center">{{ knp_pagination_sortable(jobs, '#', 'j.id') }}</th>
+                        <th>{{ knp_pagination_sortable(jobs, "Ім'я", 'cc.firstName') }}</th>
+                        <th>{{ knp_pagination_sortable(jobs, 'Прізвище', 'cc.lastName') }}</th>
+                        {#<th>{{ knp_pagination_sortable(jobs, 'Модель авто', 'm.name') }}</th>#}
+                        <th>{{ knp_pagination_sortable(jobs, 'Дата замовлення', 'j.jobDate') }}</th>
+                        <th class="text-center">Дії</th>
+                    {% else %}
+                        <th class="text-center">#</th>
+                        <th>Ім'я</th>
+                        <th>Прізвище</th>
+                        {#<th>Модель авто</th>#}
+                        <th>Дата замовлення</th>
+                        <th class="text-center">Дії</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for job in jobs %}
+                    <tr>
+                        <td class="text-center">{{ job.id }}</td>
+                        <td>{{ job.client.firstName }}</td>
+                        <td>{{ job.client.lastName }}</td>
+                        {#<td>{% if job.car.model is defined %}#}
+                                {#{{ job.car.model.name}}#}
+                            {#{% endif %}#}
+                        {#</td>#}
+                        <td>{{ job.jobDate | date("d.m.Y") }}</td>
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <a class="btn btn-default btn-xs"
+                                   href="{{ path('cto_jobs_show', { 'id': job.id }) }}"> Показати </a>
+                                <a class="btn btn-warning btn-xs"
+                                href="{{ path('cto_jobs_edit', { 'id': job.id }) }}"> Редагувати </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% if paginator %}
+                <div class="text-center">
+                    {{ knp_pagination_render(jobs) }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        jQuery(function ($) {
+            $('.date-picker-cto').datepicker({
+                format: "dd.mm.yyyy",
+                orientation: "top left",
+//                todayBtn: "linked",
+                todayBtn: true,
+                clearBtn: true,
+                language: "uk",
+                calendarWeeks: true,
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+    </script>
+{% endblock javascripts %}

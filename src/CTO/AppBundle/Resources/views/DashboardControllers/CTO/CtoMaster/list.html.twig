@@ -1,0 +1,49 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Список виконавців студії:
+                <div class="pull-right">
+                    <a href="{{ path('cto_masters_new') }}" class="btn btn-sm btn-success"><i class="fa fa-plus"></i>&nbsp;&nbsp;&nbsp;Додати</a>
+                </div>
+            </h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Ім'я</th>
+                    <th>Прізвище</th>
+                    <th class="text-center">Дії</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for master in masters %}
+                        <tr>
+                            <td>{{ master.id }}</td>
+                            <td>{{ master.firstName }}</td>
+                            <td>{{ master.lastName }}</td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a class="btn btn-warning btn-xs"
+                                       href="{{ path('cto_masters_edit', { 'id': master.id }) }}"> Редагувати </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-center">
+                {{ knp_pagination_render(masters) }}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

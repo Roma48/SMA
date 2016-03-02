@@ -1,0 +1,130 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Створити копію нагадування:
+                <div class="pull-right">
+                    <a href="{{ path('cto_notification_home') }}" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;&nbsp;Назад</a>
+                </div>
+            </h3>
+            <br>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class=" well well-sm text-center">
+                Клієнт: <span class="font-bolder">{{ client }}</span>
+                &nbsp;&nbsp;Автомобіль: <span class="font-bolder">{{ auto }}</span>
+            </div>
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="margin-bottom-15">
+                {{ form_label(form.jobCategory) }}
+                {{ form_widget(form.jobCategory) }}
+                {{ form_errors(form.jobCategory) }}
+            </div>
+            <div class="error-handling margin-bottom-15 description-container">
+                {{ form_label(form.description) }}
+                {{ form_widget(form.description) }}
+                <p id="notification_description"></p>
+                {{ form_errors(form.description) }}
+            </div>
+            <div class="margin-bottom-15">
+                {{ form_label(form.whenSend) }}
+                {{ form_widget(form.whenSend) }}
+                <div class="error-handling">
+                    {{ form_errors(form.whenSend) }}
+                </div>
+            </div>
+            <div class="error-handling margin-bottom-15 ">
+                {{ form_label(form.autoSending) }}
+                {{ form_widget(form.autoSending) }}
+                {{ form_errors(form.autoSending) }}
+            </div>
+            <div class="margin-bottom-15 error-handling">
+                {{ form_label(form.adminCopy) }}
+                {{ form_widget(form.adminCopy) }}
+                {{ form_errors(form.adminCopy) }}
+            </div>
+            <div class="margin-bottom-15 error-handling">
+                {{ form_label(form.sendNow) }}
+                {{ form_widget(form.sendNow) }}
+                {{ form_errors(form.sendNow) }}
+            </div>
+            <div class="margin-bottom-15">
+                <button type="submit" class="btn btn-default"> Створити </button>
+            </div>
+            <div class="hidden">
+                {{ form_rest(form) }}
+            </div>
+
+            {{ form_end(form) }}
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        jQuery(function ($) {
+
+            var textCounter = $("#notification_description");
+            $("#job_reminder_description").keyup(function(){
+                var textLen = $(this).val().length;
+                textCounter.html('<span>Довжина повідомлення: <b>' + textLen + '</b> симв.</span>');
+            });
+
+            var when = $("#job_reminder_whenSend");
+
+            when.datetimepicker({
+                locale: 'uk',
+                defaultDate: 'now',
+                format: 'DD.MM.YYYY HH:mm',
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down",
+                    next: "fa fa-arrow-right",
+                    previous: "fa fa-arrow-left",
+                    today: "fa fa-calendar-o",
+                    clear: "fa fa-trash-o"
+                },
+                showTodayButton: true,
+                showClear: true,
+                calendarWeeks: true,
+                widgetPositioning: {
+                    horizontal: 'left',
+                    vertical: 'bottom'
+                },
+                tooltips: {
+                    today: 'Сьогодні',
+                    clear: 'Очистити',
+                    close: 'Закрити',
+                    selectMonth: 'Вибрати місяць',
+                    time: 'Вибрати час',
+                    prevMonth: 'Попередній місяць',
+                    nextMonth: 'Наступний місяць',
+                    selectYear: 'Вибрати рік',
+                    prevYear: 'Previous Year',
+                    nextYear: 'Next Year',
+                    selectDecade: 'Select Decade',
+                    prevDecade: 'Previous Decade',
+                    nextDecade: 'Next Decade',
+                    prevCentury: 'Previous Century',
+                    nextCentury: 'Next Century'
+                }
+            });
+        });
+
+    </script>
+
+{% endblock %}

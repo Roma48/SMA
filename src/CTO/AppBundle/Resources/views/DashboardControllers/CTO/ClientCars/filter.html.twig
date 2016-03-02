@@ -1,0 +1,107 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Список автомобілів клієнтів:
+            </h3>
+            <br>
+            <div class="text-center filter-form">
+                {{ form_start(filterForm, {'action': path('cto_clientcars_filter'), 'attr': {'novalidate': 'novalidate'}}) }}
+                <div class="display_block">
+                    {{ form_widget(filterForm.fullName) }}
+                </div>
+                <div class="display_block">
+                    {{ form_widget(filterForm.model) }}
+                </div>
+                <div class="display_block">
+                    {{ form_widget(filterForm.dateFrom) }}
+                </div>
+                <div class="display_block">
+                    {{ form_widget(filterForm.dateTo) }}
+                </div>
+                <div class="hidden">
+                    {{ form_rest(filterForm) }}
+                </div>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <div class="display_block">
+                    <button type="submit" class="btn btn-default" style="margin-bottom: 2px;"><i class="fa fa-filter fa-fw"></i>&nbsp;Фільтрувати</button>
+                </div>
+                &nbsp;&nbsp;&nbsp;
+                <a href="{{ path("cto_clientcars_home") }}" class="btn btn-warning" style="margin-bottom: 2px;"><i class="fa fa-refresh fa-fw"></i>&nbsp;Відміна</a>
+                {{ form_end(filterForm) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <br>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    {% if paginator %}
+                        <th class="text-center">{{ knp_pagination_sortable(cars, '#', 'car.id') }}</th>
+                        <th>{{ knp_pagination_sortable(cars, 'Ім\'я', 'cl.firstName') }}</th>
+                        <th>{{ knp_pagination_sortable(cars, 'Прізвище', 'cl.lastName') }}</th>
+                        <th>{{ knp_pagination_sortable(cars, 'Модель авто', 'mod.name') }}</th>
+                        <th>{{ knp_pagination_sortable(cars, 'Дата замовлення', 'cl.lastVisitDate') }}</th>
+                        <th class="text-center">Дії</th>
+                    {% else %}
+                        <th class="text-center">#</th>
+                        <th>Ім'я</th>
+                        <th>Прізвище</th>
+                        <th>Модель авто</th>
+                        <th>Дата замовлення</th>
+                        <th class="text-center">Дії</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for car in cars %}
+                    <tr>
+                        <td class="text-center">{{ car.id }}</td>
+                        <td>{{ car.ctoClient.firstName }}</td>
+                        <td>{{ car.ctoClient.lastName }}</td>
+                        <td>{{ car.model.name }}</td>
+                        <td>{{ car.ctoClient.lastVisitDate | date("d.m.Y") }}</td>
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <a class="btn btn-default btn-xs" href="{{ path('cto_client_show', {'slug': car.ctoClient.slug, 'tabName': 'cars'}) }}"> Показати </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            {% if paginator %}
+                <div class="text-center">
+                    {{ knp_pagination_render(cars) }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block javascripts %}
+        <script>
+            jQuery(function ($) {
+                $("#clientcars_filter_model").selectpicker();
+
+                $('.date-picker-cto').datepicker({
+                    format: "dd.mm.yyyy",
+                    orientation: "top left",
+//            todayBtn: "linked",
+                    todayBtn: true,
+                    clearBtn: true,
+                    language: "uk",
+                    calendarWeeks: true,
+                    autoclose: true,
+                    todayHighlight: true
+                });
+            });
+        </script>
+{% endblock javascripts %}

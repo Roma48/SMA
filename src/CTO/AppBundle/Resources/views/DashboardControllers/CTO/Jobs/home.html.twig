@@ -1,0 +1,57 @@
+{% extends "::base.html.twig" %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Поточний місяць: {{ now | date('F, Y') | monthTranslate }}
+                <div class="pull-right">
+                    <a href="{{ path('cto_jobs_new') }}" class="btn btn-sm btn-success"><i class="fa fa-plus"></i>&nbsp;&nbsp;&nbsp;Нове завдання</a>
+                </div>
+            </h3>
+            <br>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+
+            <div class="well well-lg">
+                <p><span class="font-bolder">Виконано завдань: </span>{{ jobsCount }} </p>
+                <p><span class="font-bolder">Обслужено клієнтів: </span>{{ clients }}</p>
+                <p><span class="font-bolder">Зароблено:</span> {{ money | number_format(2, '.', ',') }} грн.</p>
+            </div>
+            {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+                <a href="{{ path('cto_finance_archive', {'year': 'now' | date('Y') }) }}">Фінансовий архів.</a>
+            {% endif %}
+
+        </div>
+        <div class="col-md-8 col-lg-8 col-sm-12 col-xs-12">
+            <div id="calendar"></div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block javascripts %}
+<script>
+    jQuery(function ($) {
+        $("#calendar").fullCalendar({
+            header: {
+                left:   '',
+                center: 'title',
+                right:  'today prev,next'
+            },
+            views: {
+                month: { // name of view
+                    titleFormat: 'MMMM YYYY'
+                }
+            },
+            columnFormat: {
+                month: 'dddd'
+            },
+            lang: 'uk',
+            height: 470
+        });
+    });
+</script>
+{% endblock javascripts %}

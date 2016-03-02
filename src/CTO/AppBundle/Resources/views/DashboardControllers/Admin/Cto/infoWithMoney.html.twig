@@ -1,0 +1,46 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Hidden with money statistic:
+
+            </h3>
+            <br>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+            <br>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>{{ knp_pagination_sortable(ctoUsers, 'Ім\'я', 'c.firstName') }}</th>
+                    <th>{{ knp_pagination_sortable(ctoUsers, 'Прізвище', 'c.lastName') }}</th>
+                    <th>Назва студії</th>
+                    <th>{{ knp_pagination_sortable(ctoUsers, 'Дохід', 'tcost') }}</th>
+                    <th>{{ knp_pagination_sortable(ctoUsers, 'Прибуток', 'tspend') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in ctoUsers %}
+                    <tr>
+                        <td>{{ user.firstName }}</td>
+                        <td>{{ user.lastName }}</td>
+                        <td>{{ user.ctoName }}</td>
+                        <td>{{ user.tcost | number_format(2, '.', ',') }} грн.</td>
+                        <td>{{ user.tspend | number_format(2, '.', ',') }} грн.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-center">
+                {{ knp_pagination_render(ctoUsers) }}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+

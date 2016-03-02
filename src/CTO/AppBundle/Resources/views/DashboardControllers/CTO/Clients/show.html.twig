@@ -1,0 +1,100 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                {{ client.firstName }} {{ client.lastName }}
+                <div class="pull-right">
+                    <a href="{{ path('cto_jobs_new', {'clientId': client.id}) }}" class="btn btn-sm btn-success">Додати завдання</a>
+                    <a href="{{ path('cto_client_home') }}" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i>&nbsp;&nbsp;&nbsp;Назад</a>
+                </div>
+            </h3>
+            <br>
+        </div>
+    </div>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist" id="place-tab-sh">
+        <li class="{{ tabName == 'info' ? 'active' }}"><a href="{{ path('cto_client_show', { 'tabName' : 'info', 'slug' : client.slug }) }}">Інформація</a></li>
+        <li class="{{ tabName == 'jobs' ? 'active' }}"><a href="{{ path('cto_client_show', { 'tabName' : 'jobs', 'slug' : client.slug }) }}">Замовлення</a></li>
+    </ul>
+
+    {% if tabName %}
+        {{ block(tabName) }}
+    {% else %}
+        {{ block('info') }}
+    {% endif %}
+{% endblock %}
+
+{% block info %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>Загальна інформація про клієнта:</h3>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Ім'я: </span>{{ client.firstName }}</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Прізвище: </span>{{ client.lastName }}</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Телефон: </span>{{ client.phone }}</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Кількість замовлень: </span>{{ visits }}</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bolder">Дата останнього візиту: </span>{{ client.lastVisitDate | date("d.m.Y") }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>Нотатки:</h3>
+            {% for note in notes %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            Додано: {{ note.createdAt | date("d.m.Y H:i") }}
+                            <span class="pull-right">
+                                <a href="{{ path("cto_client_removeNote", {"id": note.id}) }}" onclick="return confirm('Ви впевнені що хочете видалить?')"><i class="fa fa-trash-o"></i></a>
+                            </span>
+                        </h4>
+                    </div>
+                    <div class="panel-body">
+                        {{ note.text }}
+                    </div>
+                </div>
+            {% endfor %}
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                <div class="error-handling">
+                    {{ form_widget(form.text) }}
+                    {{ form_errors(form.text) }}
+                </div>
+                <br>
+                <div class="text-left">
+                    <button type="submit" class="btn btn-success">Додати</button>
+                </div>
+                <div class="hidden">
+                    {{ form_rest(form) }}
+                </div>
+            {{ form_end(form) }}
+
+            <div class="text-center">
+                {{ knp_pagination_render(notes) }}
+            </div>
+        </div>
+    </div>
+
+{% endblock info %}
+
+{% block jobs %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>Виконані замовлення:</h3>
+
+            {% set totalSumm = 0 %}
+            {% for job in client.carJobs %}
+                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
+                    <div class="well well-sm">
+                        <p><span class="font-bolder">Дата замовлення: </span>{{ job.jobDate | date("d.m.Y") }}&nbsp;&nbsp;&nbsp;<a href="{{ path('cto_jobs_show', {'id': job.id}) }}"><span class="job-info-link"><i class="fa fa-info"></i></span></a></p>
+                        <p><span class="font-bolder">Витрачено: </span>{{ job.totalCost | number_format(2, '.', ',') }} грн.</p>
+                        {% set totalSumm = totalSumm + job.totalCost %}
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="clearfix"></div>
+            <H4><span class="font-bolder">Всього витрачено:</span> <u>{{ totalSumm | number_format(2, '.', ',')}} грн.</u></H4>
+        </div>
+    </div>
+{% endblock jobs %}

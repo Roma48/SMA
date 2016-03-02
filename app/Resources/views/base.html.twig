@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Моя абажерка {% block title %}{% endblock title %}</title>
+    <link href="{{ asset('css/vendors.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/custom.min.css') }}" rel="stylesheet" type="text/css" />
+    {% block stylesheets %}{% endblock %}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+</head>
+<body>
+
+{% block menu %}
+    {% if app.user and is_granted('IS_AUTHENTICATED_FULLY') %}
+        {% include "::ctoMenu.html.twig" %}
+    {% endif %}
+{% endblock menu %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+            {% block breadcrumbs %}{% endblock breadcrumbs %}
+        </div>
+    </div>
+
+    {% for flashType in app.session.flashbag.keys %}
+        {% for flash in app.session.flashbag.get(flashType) %}
+            <div class="alert alert-{{ flashType }}">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ flash }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {% block body %}
+    {% endblock body %}
+    <br>
+    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+        {#<div class="footer-nav">#}
+            {#<hr>#}
+            {#<h4 class="text-center">#}
+                {#Moe STO. {{ "now" | date('Y') }}#}
+            {#</h4>#}
+        {#</div>#}
+    {% endif %}
+    <br>
+</div>
+
+<script src="{{ asset('js/vendors.min.js') }}"></script>
+<script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+<script src="{{ path('fos_js_routing_js', {"callback": "fos.Router.setData"}) }}"></script>
+
+<script>
+    jQuery(function ($) {
+
+        var badgePath = Routing.generate('ajax_notification_badgeLast3days');
+        var badge = $("#badge");
+
+        $.get(badgePath)
+            .success(function(response){
+                if (response.nitificationsCount == 0) {
+                    badge.html('');
+                } else {
+                    badge.html('<span class="badge badge-red">' + response.nitificationsCount + '</span>');
+                }
+            })
+            .error(function(error){
+                console.log(error);
+            })
+        ;
+
+    });
+</script>
+{% block javascripts %}{% endblock javascripts %}
+</body>
+</html>

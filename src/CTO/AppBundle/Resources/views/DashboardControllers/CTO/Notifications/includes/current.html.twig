@@ -1,0 +1,85 @@
+<div class="tab-pane fade in active" id="current">
+
+    <div class="row no-margin">
+        <table class="table table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th>
+                        #
+                    </th>
+                    <th class="notification-to">
+                        Кому
+                    </th>
+                    <th class="notification-when">
+                        Коли
+                    </th>
+                    <th>
+                        Повідомлення
+                    </th>
+                    <th>
+                        Категорія
+                    </th>
+                    <th class="notification-action text-center">
+                        Дія
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for current in currents %}
+                    {% if 'now' | date('d.m.Y H:i') > current.whenSend | date('d.m.Y H:i') %}
+                        <tr class="bg-warning" title="без автоматичної відправки">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+                        <td style="vertical-align: middle;">
+                            {{ current.id }}
+                        </td>
+                        <td style="vertical-align: middle;">
+                            {% if current.type == constant('CTO\\AppBundle\\Entity\\Notification::TYPE_BROADCAST') %}
+                                <span title="Розсилка"><i class="fa fa-paper-plane"></i>&nbsp;&nbsp;</span>
+                                <span data-toggle="tooltip" data-placement="left" title="{{ current.broadcastTo | userNames }}" class="broadcast-tooltip">Розсилка</span>
+                            {% elseif current.type == constant('CTO\\AppBundle\\Entity\\Notification::TYPE_NOTIFICATION') %}
+                                <span title="Нагадування">&nbsp;&nbsp;<i class="fa fa-info"></i>&nbsp;&nbsp;</span>
+                                <a href="{{ path('cto_client_show', {'slug': current.clientCto.slug}) }}">{{ current.clientCto.fullName }}</a>
+                            {% elseif current.type == constant('CTO\\AppBundle\\Entity\\Notification::TYPE_RECOMMENDATION') %}
+                                <span title="Рекомендація">&nbsp;<i class="fa fa-pinterest-p"></i>&nbsp;&nbsp;</span>
+                                <a href="{{ path('cto_client_show', {'slug': current.clientCto.slug}) }}">{{ current.clientCto.fullName }}</a>
+                            {% endif %}
+                        </td>
+                        <td style="vertical-align: middle;">
+                            {{ current.whenSend | date('d.m.Y H:i') }}
+                        </td>
+                        <td style="vertical-align: middle;">
+                            {{ current.description }}
+                        </td>
+                        <td style="vertical-align: middle;">
+                            {% if current.jobCategory.name is defined %}
+                                {{ current.jobCategory.name }}
+                            {% endif %}
+                        </td>
+                        <td style="vertical-align: middle;">
+                            {% if current.type != constant('CTO\\AppBundle\\Entity\\Notification::TYPE_BROADCAST') %}
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ path('cto_notification_skip', {'id': current.id}) }}" class="btn btn-default" title="Скасувати" onclick="return confirm('Ви впевнені?');">&nbsp;&nbsp;<i class="fa fa-times"></i>&nbsp;&nbsp;</a>
+                                    <a href="{{ path('cto_notification_edit', {'id': current.id}) }}" class="btn btn-default" title="Редагувати">&nbsp;&nbsp;<i class="fa fa-pencil"></i>&nbsp;&nbsp;</a>
+                                    <a href="{{ path('cto_notification_copy', {'id': current.id}) }}" class="btn btn-default" title="Копіювати">&nbsp;&nbsp;<i class="fa fa-files-o"></i>&nbsp;&nbsp;</a>
+                                </div>
+                            {% else %}
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ path('cto_notification_skip', {'id': current.id}) }}" class="btn btn-default" title="Скасувати" onclick="return confirm('Ви впевнені?');">&nbsp;&nbsp;<i class="fa fa-times"></i>&nbsp;&nbsp;</a>
+                                    <a href="{{ path('cto_notification_broadcastEdit', {'id': current.id}) }}" class="btn btn-default" title="Редагувати">&nbsp;&nbsp;<i class="fa fa-pencil"></i>&nbsp;&nbsp;</a>
+                                    <a href="{{ path('cto_notification_broadcastCopy', {'id': current.id}) }}" class="btn btn-default" title="Копіювати">&nbsp;&nbsp;<i class="fa fa-files-o"></i>&nbsp;&nbsp;</a>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <div class="text-center">
+            {{ knp_pagination_render(currents) }}
+        </div>
+    </div>
+
+</div>

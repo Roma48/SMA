@@ -1,0 +1,31 @@
+<div class="tab-pane fade in active" id="brands">
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h3>
+                Марки автомобілів:
+                <div class="pull-right">
+                    <a href="{{ path('cto_cars_new') }}" class="btn btn-sm btn-success"><i class="fa fa-plus"></i>&nbsp;&nbsp;&nbsp;Додати нову марку</a>
+                </div>
+            </h3>
+            <br>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 row-not-padding">
+            {% for car in cars %}
+                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+                    <div class="brand-car-item">
+                        {{ car.name }}
+                        <div class="pull-right">
+                            <a href="{{ path("cto_cars_edit", {"slug": car.slug}) }}" title="редагувати {{ car.name }}"><i class="fa fa-pencil"></i></a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+
+</div>
