@@ -102,7 +102,7 @@ class AjaxController extends Controller
                     $fileName = $file->getClientOriginalName();
                     $fileInfo = new finfo(FILEINFO_MIME_TYPE);
                     $mimeType = $fileInfo->file($filePath);
-                    $name = "pri4a_id_{$ctoId}/job_id_{$job->getId()}" . "__" . $fileName . "__" . uniqid() . ".jpg";
+                    $name = "abazherka/abazherka_id_{$ctoId}/job_id_{$job->getId()}" . "__" . $fileName . "__" . uniqid() . ".jpg";
 
                     if ($s3->upload($name, $filePath, $mimeType)) {
                         $picture = new JobPicture();
